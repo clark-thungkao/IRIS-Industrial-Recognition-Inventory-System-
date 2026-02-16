@@ -19,5 +19,15 @@ def send_image_to_n8n(
     files = {"data": (filename, content, mime_type)}
     response = requests.post(webhook_url, files=files, timeout=timeout_seconds)
     response.raise_for_status()
-    return response.json()
+
+    try:
+        return response.json()
+    except Exception as exc:  # noqa: BLE001
+        # Surface a clearer error when n8n does not return JSON
+        snippet = response.text[:300] if response.text else "<empty body>"
+        raise RuntimeError(
+            f"Backend did not return JSON (status {response.status_code}). "
+            f"Body preview: {snippet}"
+        ) from exc
+
 

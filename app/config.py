@@ -7,20 +7,23 @@ import streamlit as st
 @lru_cache(maxsize=1)
 def get_webhook_url(env: str = "prod") -> str:
     """
-    Resolve the n8n webhook URL from Streamlit secrets or environment variables.
+    Resolve the n8n webhook URL from environment variables or Streamlit secrets.
 
     Priority:
-    1. Streamlit secrets (for Streamlit Cloud / local secrets.toml)
-    2. Environment variables
+    1. Environment variables (for local/dev and Docker)
+    2. Streamlit secrets (for Streamlit Cloud / local secrets.toml)
     """
-    env_key = "https://germancapybara.app.n8n.cloud/webhook-test/4bdb11b9-6f5c-449e-a90c-d5bc77b23635" if env == "prod" else "https://germancapybara.app.n8n.cloud/webhook-test/4bdb11b9-6f5c-449e-a90c-d5bc77b23635"
+    env_key = "WEBHOOK_URL_PROD" if env == "prod" else "WEBHOOK_URL_TEST"
 
-    # 1) Streamlit secrets
-    value = st.secrets.get(env_key) if hasattr(st, "secrets") else None
+    # 1) Environment variables
+    value = os.getenv(env_key)
 
-    # 2) Fall back to environment variables
+    # 2) Fall back to Streamlit secrets (handle missing secrets.toml gracefully)
     if not value:
-        value = os.getenv(env_key)
+        try:
+            value = st.secrets[env_key]  # type: ignore[index]
+        except Exception:  # noqa: BLE001
+            value = None
 
     if not value:
         raise RuntimeError(

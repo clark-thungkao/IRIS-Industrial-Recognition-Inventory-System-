@@ -10,9 +10,9 @@ import uuid
 
 import streamlit as st
 
-from .api_client import send_image_to_n8n
-from .config import get_webhook_url
-from .models import inventory_status_from_payload
+from api_client import send_image_to_n8n
+from config import get_webhook_url
+from models import inventory_status_from_payload
 
 
 logging.basicConfig(level=logging.INFO)
