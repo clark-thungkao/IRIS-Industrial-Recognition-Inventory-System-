@@ -20,10 +20,19 @@ The system follows a decoupled frontend/backend structure, adhering to standard 
 ```text
 /
 ├── app/
-│   ├── main.py              # Streamlit user interface
-│   └── requirements.txt     # Python dependencies (streamlit, requests)
+│   ├── main.py              # Streamlit user interface (Streamlit entrypoint)
+│   ├── api_client.py        # HTTP client for n8n webhook
+│   ├── config.py            # Environment / secrets resolution
+│   ├── models.py            # InventoryStatus domain model
+│   └── requirements.txt     # Python dependencies (streamlit, requests, pytest)
 ├── workflows/
 │   └── inventory_flow.json  # Exported n8n workflow code
+├── tests/
+│   └── test_api_client.py   # pytest-based unit test for API client
+├── .github/
+│   └── workflows/
+│       └── ci.yml           # GitHub Actions workflow (pytest)
+├── Dockerfile               # Containerized Streamlit app
 ├── .gitignore               # Excludes virtual environments and keys
 └── README.md
 ```
@@ -58,5 +67,25 @@ Based on system testing, the following specific configurations are required for 
 1. Navigate to the `app/` directory.
 2. Create and activate a virtual environment.
 3. Run `pip install -r requirements.txt`.
-4. Update the `WEBHOOK_URL` variable in `main.py` with the n8n endpoint.
+4. Configure the webhook URLs via **Streamlit secrets** or **environment variables**:
+   - `WEBHOOK_URL_TEST` – n8n test webhook URL
+   - `WEBHOOK_URL_PROD` – n8n production webhook URL
 5. Run the application using `streamlit run main.py`.
+6. In the UI, use the **Environment** toggle (Test / Production) to switch between n8n endpoints.
+
+### Running Tests
+1. From the repository root, ensure dependencies are installed (`pip install -r app/requirements.txt`).
+2. Run `pytest`.
+
+### Docker (Optional)
+1. Build the image from the repository root:
+   ```bash
+   docker build -t verysmart-inventory-frontend .
+   ```
+2. Run the container, passing in the webhook URLs as environment variables:
+   ```bash
+   docker run -p 8501:8501 \
+     -e WEBHOOK_URL_TEST="https://your-test-url" \
+     -e WEBHOOK_URL_PROD="https://your-prod-url" \
+     verysmart-inventory-frontend
+   ```
