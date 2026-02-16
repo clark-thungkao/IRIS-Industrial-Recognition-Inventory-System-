@@ -13,7 +13,7 @@ def get_webhook_url(env: str = "prod") -> str:
     1. Streamlit secrets (for Streamlit Cloud / local secrets.toml)
     2. Environment variables
     """
-    env_key = "WEBHOOK_URL_PROD" if env == "prod" else "WEBHOOK_URL_TEST"
+    env_key = "https://germancapybara.app.n8n.cloud/webhook-test/4bdb11b9-6f5c-449e-a90c-d5bc77b23635" if env == "prod" else "https://germancapybara.app.n8n.cloud/webhook-test/4bdb11b9-6f5c-449e-a90c-d5bc77b23635"
 
     # 1) Streamlit secrets
     value = st.secrets.get(env_key) if hasattr(st, "secrets") else None
